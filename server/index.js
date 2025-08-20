@@ -16,9 +16,10 @@ const wss = new WebSocket.Server({ server });
 app.use(express.json());
 app.use(express.static('public'));
 
-app.post('/api/state', (req, res) => {
-  const state = req.body;
-  // Broadcast to all connected clients
+  app.post('/api/state', (req, res) => {
+    const state = req.body;
+    console.log('Received state:', state);
+    // Broadcast to all connected clients
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(state));
