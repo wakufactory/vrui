@@ -14,12 +14,29 @@
         </div>
     </div>
     <script>
+        let previousState = null;
+
         const ws = new WebSocket('wss://localhost:3000');
 
         ws.onmessage = function(event) {
             const state = JSON.parse(event.data);
-            document.getElementById('stateDisplay').innerText = JSON.stringify(state, null, 2);
-        };
+            if (previousState === null) {
+                document.getElementById('stateDisplay').innerText = JSON.stringify(state, null, 2);
+                previousState = state;
+            } else {
+                const changes = Object.keys(state)
+                    .filter(key => state[key] !== previousState[key])
+                    .reduce((acc, key) => {
+                        acc[key] = state[key];
+                        return acc;
+                    }, {});
+
+                if (Object.keys(changes).length > 0) {
+                    document.getElementById('stateDisplay').innerText = JSON.stringify(changes, null, 2);
+                    previousState = state;
+                }
+            }
+        }
     </script>
 </body>
 </html>
