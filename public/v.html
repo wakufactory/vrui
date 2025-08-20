@@ -16,7 +16,7 @@
     <script>
         let previousState = null;
 
-        const ws = new WebSocket('wss://localhost:3000');
+        const ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
 
         ws.onmessage = function(event) {
             const state = JSON.parse(event.data);
