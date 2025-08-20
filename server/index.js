@@ -14,6 +14,7 @@ const server = https.createServer({
 const wss = new WebSocket.Server({ server });
 
 app.use(express.json());
+app.use(express.static('public'));
 
 app.post('/api/state', (req, res) => {
   const state = req.body;
