@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "install-cert": "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout cert/selfsigned.key -out cert/selfsigned.crt -subj \"/C=JP/ST=Tokyo/L=Tokyo/O=YourCompany/OU=YourUnit/CN=yourdomain.com\""
   },
   "dependencies": {
     "express": "^4.17.1",
