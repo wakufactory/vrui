@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UI Page</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
 </head>
 <body>
@@ -12,15 +12,15 @@
         <h1>UI Page</h1>
         <div class="form-group">
             <label for="textInput">テキスト入力</label>
-            <input type="text" class="form-control" id="textInput" v-model="textInput" @input="sendState">
+            <input type="text" class="form-control" id="textInput" v-model="state.textInput" />
         </div>
         <div class="form-group">
             <label for="rangeInput">範囲入力</label>
-            <input type="range" class="form-control-range" id="rangeInput" v-model="rangeInput" @input="sendState">
+            <input type="range" class="form-control-range" id="rangeInput" v-model="state.rangeInput" />
         </div>
         <div class="form-group">
             <label for="selectInput">選択</label>
-            <select class="form-control" id="selectInput" v-model="selectInput" @change="sendState">
+            <select class="form-control" id="selectInput" v-model="state.selectInput">
                 <option value="option1">オプション1</option>
                 <option value="option2">オプション2</option>
             </select>
@@ -28,64 +28,82 @@
         <div class="form-group">
             <label>ラジオボタン</label>
             <div>
-                <input type="radio" id="radio1" value="radio1" v-model="radioInput" @change="sendState">
+                <input type="radio" id="radio1" value="radio1" v-model="state.radioInput" />
                 <label for="radio1">ラジオ1</label>
             </div>
             <div>
-                <input type="radio" id="radio2" value="radio2" v-model="radioInput" @change="sendState">
+                <input type="radio" id="radio2" value="radio2" v-model="state.radioInput" />
                 <label for="radio2">ラジオ2</label>
             </div>
         </div>
         <div class="form-group">
-            <input type="checkbox" id="checkbox" v-model="checkboxInput" @change="sendState">
+            <input type="checkbox" id="checkbox" v-model="state.checkboxInput" />
             <label for="checkbox">チェックボックス</label>
         </div>
         <div class="form-group">
-            <button type="button" id="actionButton" class="btn btn-primary"
-                @mousedown="sendButtonEvent('down')" @mouseup="sendButtonEvent('up')">ボタン</button>
+            <button
+                type="button"
+                id="actionButton"
+                class="btn btn-primary"
+                @mousedown="state.buttonEvent='down'"
+                @mouseup="state.buttonEvent='up'">
+                ボタン
+            </button>
         </div>
     </div>
     <script>
-        const app = Vue.createApp({
-            data() {
-                return {
-                    textInput: '',
-                    rangeInput: 50,
-                    selectInput: 'option1',
-                    radioInput: '',
-                    checkboxInput: false,
-                    buttonEvent: null
-                };
-            },
-            methods: {
-                sendState() {
-                    const state = {
-                        textInput: this.textInput,
-                        rangeInput: this.rangeInput,
-                        selectInput: this.selectInput,
-                        radioInput: this.radioInput,
-                        checkboxInput: this.checkboxInput
-                    };
-                    if (this.buttonEvent !== null) {
-                        state.buttonEvent = this.buttonEvent;
-                    }
-                    console.log('Sending state:', state);
-                    fetch('/api/state', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(state)
-                    });
-                },
-                sendButtonEvent(eventType) {
-                    this.buttonEvent = eventType;
-                    this.sendState();
-                    this.buttonEvent = null;
-                }
-            }
+        const { createApp, reactive, watch } = Vue;
+
+        // 全ての入力とボタンイベントをリアクティブに監視
+        const state = reactive({
+            textInput: '',
+            rangeInput: 50,
+            selectInput: 'option1',
+            radioInput: '',
+            checkboxInput: false,
+            buttonEvent: null
         });
-        app.mount('#app');
+
+        // state に変化があったらサーバーへ送信
+        watch(
+            () => ({
+                textInput: state.textInput,
+                rangeInput: state.rangeInput,
+                selectInput: state.selectInput,
+                radioInput: state.radioInput,
+                checkboxInput: state.checkboxInput
+            }),
+            (newFields) => {
+                console.log('Sending fields:', newFields);
+                fetch('/api/state', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newFields)
+                });
+            },
+            { deep: true }
+        );
+
+        watch(
+            () => state.buttonEvent,
+            (eventType) => {
+                if (!eventType) return;
+                console.log('Sending button event:', eventType);
+                fetch('/api/state', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ buttonEvent: eventType })
+                }).then(() => {
+                    state.buttonEvent = null;
+                });
+            }
+        );
+
+        createApp({
+            setup() {
+                return { state };
+            }
+        }).mount('#app');
     </script>
 </body>
 </html>
