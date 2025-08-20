@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <h1>UI Page</h1>
+        <div class="form-group">
+            <label for="textInput">テキスト入力</label>
+            <input type="text" class="form-control" id="textInput" v-model="textInput" @input="sendState">
+        </div>
+        <div class="form-group">
+            <label for="rangeInput">範囲入力</label>
+            <input type="range" class="form-control-range" id="rangeInput" v-model="rangeInput" @input="sendState">
+        </div>
+        <div class="form-group">
+            <label for="selectInput">選択</label>
+            <select class="form-control" id="selectInput" v-model="selectInput" @change="sendState">
+                <option value="option1">オプション1</option>
+                <option value="option2">オプション2</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>ラジオボタン</label>
+            <div>
+                <input type="radio" id="radio1" value="radio1" v-model="radioInput" @change="sendState">
+                <label for="radio1">ラジオ1</label>
+            </div>
+            <div>
+                <input type="radio" id="radio2" value="radio2" v-model="radioInput" @change="sendState">
+                <label for="radio2">ラジオ2</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="checkbox" id="checkbox" v-model="checkboxInput" @change="sendState">
+            <label for="checkbox">チェックボックス</label>
+        </div>
+    </div>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    textInput: '',
+                    rangeInput: 50,
+                    selectInput: 'option1',
+                    radioInput: '',
+                    checkboxInput: false
+                };
+            },
+            methods: {
+                sendState() {
+                    fetch('/api/state', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            textInput: this.textInput,
+                            rangeInput: this.rangeInput,
+                            selectInput: this.selectInput,
+                            radioInput: this.radioInput,
+                            checkboxInput: this.checkboxInput
+                        })
+                    });
+                }
+            }
+        });
+        app.mount('#app');
+    </script>
+</body>
+</html>

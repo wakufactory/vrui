@@ -1,0 +1,12 @@
+{
+  "port": 3000,
+  "ssl": {
+    "key": "cert/key.pem",
+    "cert": "cert/cert.pem"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "ws": "^8.18.3"
+  },
+  "start": "node server/index.js"
+}
